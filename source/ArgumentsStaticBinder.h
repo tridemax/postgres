@@ -25,7 +25,7 @@ namespace Postgres
 	public:
 		//---------------------------------------------------------------------------------------------
 		template <size_t Index, class FirstArgument>
-		__forceinline void BindArguments(const FirstArgument& firstArgument)
+		forceinline void BindArguments(const FirstArgument& firstArgument)
 		{
 			m_argumentsPointers[Index] = &std::get<Index>(m_argumentsTuple);
 
@@ -34,7 +34,7 @@ namespace Postgres
 
 		//---------------------------------------------------------------------------------------------
 		template <size_t Index, class FirstArgument, class... RestArgument>
-		__forceinline void BindArguments(const FirstArgument& firstArgument, const RestArgument&... restArguments)
+		forceinline void BindArguments(const FirstArgument& firstArgument, const RestArgument&... restArguments)
 		{
 			m_argumentsPointers[Index] = &std::get<Index>(m_argumentsTuple);
 
@@ -45,7 +45,7 @@ namespace Postgres
 		//---------------------------------------------------------------------------------------------
 		/*
 		template <class Argument>
-		__forceinline void BindArgument(size_t argumentIndex, const Argument& argumentValue)
+		forceinline void BindArgument(size_t argumentIndex, const Argument& argumentValue)
 		{
 			BindArgumentsCategory<Index, Argument,
 				std::is_enum<Argument>::value ? TypeCategory::TypeEnum :
@@ -59,7 +59,7 @@ namespace Postgres
 		class BindArgumentsCategory
 		{
 		public:
-			__forceinline static void Bind(ArgumentsStaticBinder& binder, const Argument& argumentValue) = delete;
+			forceinline static void Bind(ArgumentsStaticBinder& binder, const Argument& argumentValue) = delete;
 		};
 
 		//---------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ namespace Postgres
 		class BindArgumentsCategory<Index, Argument, TypeCategory::TypeEnum>
 		{
 		public:
-			__forceinline static void Bind(ArgumentsStaticBinder& binder, const Argument& argumentValue)
+			forceinline static void Bind(ArgumentsStaticBinder& binder, const Argument& argumentValue)
 			{
 				BindStaticArgument<Index, Argument>::Bind(static_cast<typename std::underlying_type<Argument>::type>(binder, argumentValue));
 			}
@@ -78,7 +78,7 @@ namespace Postgres
 		class BindStaticArgument
 		{
 		public:
-			__forceinline static void Bind(ArgumentsStaticBinder& binder, const Argument& argumentValue)
+			forceinline static void Bind(ArgumentsStaticBinder& binder, const Argument& argumentValue)
 			{
 				BindArgumentsCategory<Index, Argument,
 					std::is_enum<Argument>::value ? TypeCategory::TypeEnum :
@@ -92,7 +92,7 @@ namespace Postgres
 		class BindStaticArgument<Index, int16_t>
 		{
 		public:
-			__forceinline static void Bind(ArgumentsStaticBinder& binder, const int16_t& argumentValue)
+			forceinline static void Bind(ArgumentsStaticBinder& binder, const int16_t& argumentValue)
 			{
 			}
 		};
@@ -101,7 +101,7 @@ namespace Postgres
 	//-------------------------------------------------------------------------------------------------
 	template <class... Arguments>
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<int16_t>(size_t argumentIndex, const int16_t& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<int16_t>(size_t argumentIndex, const int16_t& argumentValue)
 	{
 		int16_t* packedValue = static_cast<int16_t*>(m_argumentsPointers[argumentIndex]);
 		*packedValue = argumentValue;
@@ -112,20 +112,20 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<int32_t>(size_t argumentIndex, const int32_t& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<int32_t>(size_t argumentIndex, const int32_t& argumentValue)
 	{
 		return true;
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<int64_t>(size_t argumentIndex, const int64_t& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<int64_t>(size_t argumentIndex, const int64_t& argumentValue)
 	{
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<uint16_t>(size_t argumentIndex, const uint16_t& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<uint16_t>(size_t argumentIndex, const uint16_t& argumentValue)
 	{
 		int16_t* packedValue = static_cast<int16_t*>(m_argumentsPointers[argumentIndex]);
 		*packedValue = static_cast<int16_t>(argumentValue);
@@ -134,19 +134,19 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<uint32_t>(size_t argumentIndex, const uint32_t& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<uint32_t>(size_t argumentIndex, const uint32_t& argumentValue)
 	{
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<uint64_t>(size_t argumentIndex, const uint64_t& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<uint64_t>(size_t argumentIndex, const uint64_t& argumentValue)
 	{
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsStaticBinder::BindArgument<const char*>(const char* const& argumentValue)
+	forceinline void ArgumentsStaticBinder::BindArgument<const char*>(const char* const& argumentValue)
 	{
 	}
 */

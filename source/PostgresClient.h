@@ -8,21 +8,32 @@ namespace Postgres
 	//-------------------------------------------------------------------------------------------------
 	/// PostgresClient
 	//-------------------------------------------------------------------------------------------------
-	class PostgresClient : public NonCopyable
+	class PostgresClient : public boost::noncopyable
 	{
 	private:
-		typedef tbb::enumerable_thread_specific<PostgresConnection> ConnectionCache;
+		typedef boost::thread_specific_ptr<PostgresConnection> ConnectionHolder;
 
 	private:
-		ConnectionCache				m_connectionCache;
+		ConnectionHolder			m_threadSpecificConnection;
 
 	public:
-		PostgresClient();
-		~PostgresClient();
+		//---------------------------------------------------------------------------------------------
+		inline PostgresConnection& GetConnection(const char* dbConnectionParams)
+		{
+			if (!m_threadSpecificConnection.get())
+			{
+				m_threadSpecificConnection.reset(new PostgresConnection());
+			}
 
-		PostgresConnection& GetConnection(const char* dbConnectionParams);
+			if (!m_threadSpecificConnection->IsOpen())
+			{
+				m_threadSpecificConnection->OpenConnection(dbConnectionParams);
+				assert(m_threadSpecificConnection->IsOpen());
+			}
 
-	public:
+			return *m_threadSpecificConnection.get();
+		}
+
 		//---------------------------------------------------------------------------------------------
 		static inline PostgresClient& Instance()
 		{

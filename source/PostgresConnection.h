@@ -9,7 +9,7 @@ namespace Postgres
 	//-------------------------------------------------------------------------------------------------
 	/// PostgresConnection
 	//-------------------------------------------------------------------------------------------------
-	class PostgresConnection : public NonCopyable
+	class PostgresConnection : public boost::noncopyable
 	{
 	private:
 #pragma pack(push, 1)
@@ -45,13 +45,41 @@ namespace Postgres
 		StatementCache				m_statementCache;
 
 	public:
-		PostgresConnection();
-		~PostgresConnection();
+		//---------------------------------------------------------------------------------------------
+		inline PostgresConnection() : m_internalConnection(nullptr)
+		{
+		}
 
-		bool OpenConnection(const char* dbConnectionParams);
-		void CloseConnection();
+		//---------------------------------------------------------------------------------------------
+		inline ~PostgresConnection()
+		{
+			CloseConnection();
+		}
 
-	public:
+		//---------------------------------------------------------------------------------------------
+		inline bool OpenConnection(const char* dbConnectionParams)
+		{
+			// Close currently opened connection
+			CloseConnection();
+
+			// Try to open connection
+			m_internalConnection = PQconnectdb(dbConnectionParams);
+
+			return PQstatus(m_internalConnection) != CONNECTION_OK;
+		}
+
+		//---------------------------------------------------------------------------------------------
+		inline void CloseConnection()
+		{
+			if (m_internalConnection)
+			{
+				PQfinish(m_internalConnection);
+				m_internalConnection = nullptr;
+			}
+
+			m_statementCache.clear();
+		}
+
 		//---------------------------------------------------------------------------------------------
 		inline bool IsOpen() const
 		{

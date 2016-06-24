@@ -101,20 +101,20 @@ namespace Postgres
 	//-------------------------------------------------------------------------------------------------
 	/// EndianSwap
 	//-------------------------------------------------------------------------------------------------
-	__forceinline int16_t& EndianSwap(int16_t& x)
+	forceinline int16_t& EndianSwap(int16_t& x)
 	{
 		x = (x << 8) | ((x >> 8) & 0xFF);
 		return x;
 	}
 
-	__forceinline int32_t& EndianSwap(int32_t& x)
+	forceinline int32_t& EndianSwap(int32_t& x)
 	{
 		x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
 		x = (x << 16) | ((x >> 16) & 0xFFFF);
 		return x;
 	}
 
-	__forceinline int64_t& EndianSwap(int64_t& x)
+	forceinline int64_t& EndianSwap(int64_t& x)
 	{
 		x = ((x << 8) & 0xFF00FF00FF00FF00ULL) | ((x >> 8) & 0x00FF00FF00FF00FFULL);
 		x = ((x << 16) & 0xFFFF0000FFFF0000ULL) | ((x >> 16) & 0x0000FFFF0000FFFFULL);
@@ -122,20 +122,20 @@ namespace Postgres
 		return x;
 	}
 
-	__forceinline uint16_t& EndianSwap(uint16_t& x)
+	forceinline uint16_t& EndianSwap(uint16_t& x)
 	{
 		x = (x << 8) | (x >> 8);
 		return x;
 	}
 
-	__forceinline uint32_t& EndianSwap(uint32_t& x)
+	forceinline uint32_t& EndianSwap(uint32_t& x)
 	{
 		x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
 		x = (x << 16) | (x >> 16);
 		return x;
 	}
 
-	__forceinline uint64_t& EndianSwap(uint64_t& x)
+	forceinline uint64_t& EndianSwap(uint64_t& x)
 	{
 		x = ((x << 8) & 0xFF00FF00FF00FF00ULL) | ((x >> 8) & 0x00FF00FF00FF00FFULL);
 		x = ((x << 16) & 0xFFFF0000FFFF0000ULL) | ((x >> 16) & 0x0000FFFF0000FFFFULL);

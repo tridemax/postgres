@@ -14,7 +14,7 @@ namespace Postgres
 	//-------------------------------------------------------------------------------------------------
 	/// PostgresStatement
 	//-------------------------------------------------------------------------------------------------
-	class PostgresStatement : public NonCopyable
+	class PostgresStatement : public boost::noncopyable
 	{
 	private:
 		friend class PostgresConnection;
@@ -139,9 +139,9 @@ namespace Postgres
 
 			const size_t argumentsCount = dynamicBinder.m_argumentsVector.size();
 
-			void** argumentsPointers = static_cast<void**>(_alloca(sizeof(void*) * argumentsCount));
-			int* argumentsLengths = static_cast<int*>(_alloca(sizeof(int) * argumentsCount));
-			int* argumentsFormats = static_cast<int*>(_alloca(sizeof(int) * argumentsCount));
+			void** argumentsPointers = reinterpret_cast<void**>(alloca(sizeof(void*) * argumentsCount));
+			int* argumentsLengths = reinterpret_cast<int*>(alloca(sizeof(int) * argumentsCount));
+			int* argumentsFormats = reinterpret_cast<int*>(alloca(sizeof(int) * argumentsCount));
 
 			for (size_t argumentIndex = 0u; argumentIndex != argumentsCount; ++argumentIndex)
 			{
@@ -215,12 +215,12 @@ namespace Postgres
 
 	private:
 		//---------------------------------------------------------------------------------------------
-		__forceinline PostgresStatement(const char* name, PGconn* connection) : m_name(name), m_connection(connection), m_result(nullptr)
+		forceinline PostgresStatement(const char* name, PGconn* connection) : m_name(name), m_connection(connection), m_result(nullptr)
 		{
 		}
 
 		//---------------------------------------------------------------------------------------------
-		__forceinline void ClearResults()
+		forceinline void ClearResults()
 		{
 			if (m_result)
 			{
@@ -231,14 +231,14 @@ namespace Postgres
 
 		//---------------------------------------------------------------------------------------------
 		template <int32_t Index, class FirstResult>
-		__forceinline void ExtractResults(int32_t tupleIndex, FirstResult& firstResult)
+		forceinline void ExtractResults(int32_t tupleIndex, FirstResult& firstResult)
 		{
 			ExtractResult(tupleIndex, Index, firstResult);
 		}
 
 		//---------------------------------------------------------------------------------------------
 		template <int32_t Index, class FirstResult, class... RestResult>
-		__forceinline void ExtractResults(int32_t tupleIndex, FirstResult& firstResult, RestResult&... restResults)
+		forceinline void ExtractResults(int32_t tupleIndex, FirstResult& firstResult, RestResult&... restResults)
 		{
 			ExtractResult(tupleIndex, Index, firstResult);
 			ExtractResults<Index + 1>(tupleIndex, restResults...);
@@ -246,7 +246,7 @@ namespace Postgres
 
 		//---------------------------------------------------------------------------------------------
 		template <class Result>
-		__forceinline void ExtractResult(int32_t tupleIndex, int32_t resultIndex, Result& resultValue)
+		forceinline void ExtractResult(int32_t tupleIndex, int32_t resultIndex, Result& resultValue)
 		{
 			ExtractResultsCategory<Result,
 				std::is_enum<Result>::value ? TypeCategory::TypeEnum :
@@ -259,7 +259,7 @@ namespace Postgres
 		class ExtractResultsCategory
 		{
 		public:
-			__forceinline static void Extract(PostgresStatement& PostgresStatement, int32_t tupleIndex, int32_t resultIndex, Result& resultValue) = delete;
+			forceinline static void Extract(PostgresStatement& PostgresStatement, int32_t tupleIndex, int32_t resultIndex, Result& resultValue) = delete;
 		};
 
 		//---------------------------------------------------------------------------------------------
@@ -267,7 +267,7 @@ namespace Postgres
 		class ExtractResultsCategory<Result, TypeCategory::TypeEnum>
 		{
 		public:
-			__forceinline static void Extract(PostgresStatement& PostgresStatement, int32_t tupleIndex, int32_t resultIndex, Result& resultValue)
+			forceinline static void Extract(PostgresStatement& PostgresStatement, int32_t tupleIndex, int32_t resultIndex, Result& resultValue)
 			{
 				PostgresStatement.ExtractResult(tupleIndex, resultIndex, reinterpret_cast<typename std::underlying_type<Result>::type&>(resultValue));
 			}
@@ -276,7 +276,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<int16_t>(int32_t tupleIndex, int32_t resultIndex, int16_t& resultValue)
+	forceinline void PostgresStatement::ExtractResult<int16_t>(int32_t tupleIndex, int32_t resultIndex, int16_t& resultValue)
 	{
 		assert(PQgetlength(m_result, tupleIndex, resultIndex) == sizeof(int16_t));
 		assert(PQftype(m_result, resultIndex) == INT2OID);
@@ -288,7 +288,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<int32_t>(int32_t tupleIndex, int32_t resultIndex, int32_t& resultValue)
+	forceinline void PostgresStatement::ExtractResult<int32_t>(int32_t tupleIndex, int32_t resultIndex, int32_t& resultValue)
 	{
 		assert(PQgetlength(m_result, tupleIndex, resultIndex) == sizeof(int32_t));
 		assert(PQftype(m_result, resultIndex) == INT4OID);
@@ -300,7 +300,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<int64_t>(int32_t tupleIndex, int32_t resultIndex, int64_t& resultValue)
+	forceinline void PostgresStatement::ExtractResult<int64_t>(int32_t tupleIndex, int32_t resultIndex, int64_t& resultValue)
 	{
 		assert(PQgetlength(m_result, tupleIndex, resultIndex) == sizeof(int64_t));
 		assert(PQftype(m_result, resultIndex) == INT8OID);
@@ -312,7 +312,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<uint16_t>(int32_t tupleIndex, int32_t resultIndex, uint16_t& resultValue)
+	forceinline void PostgresStatement::ExtractResult<uint16_t>(int32_t tupleIndex, int32_t resultIndex, uint16_t& resultValue)
 	{
 		assert(PQgetlength(m_result, tupleIndex, resultIndex) == sizeof(int16_t));
 		assert(PQftype(m_result, resultIndex) == INT2OID);
@@ -325,7 +325,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<uint32_t>(int32_t tupleIndex, int32_t resultIndex, uint32_t& resultValue)
+	forceinline void PostgresStatement::ExtractResult<uint32_t>(int32_t tupleIndex, int32_t resultIndex, uint32_t& resultValue)
 	{
 		assert(PQgetlength(m_result, tupleIndex, resultIndex) == sizeof(int32_t));
 		assert(PQftype(m_result, resultIndex) == INT4OID);
@@ -338,7 +338,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<uint64_t>(int32_t tupleIndex, int32_t resultIndex, uint64_t& resultValue)
+	forceinline void PostgresStatement::ExtractResult<uint64_t>(int32_t tupleIndex, int32_t resultIndex, uint64_t& resultValue)
 	{
 		assert(PQgetlength(m_result, tupleIndex, resultIndex) == sizeof(int64_t));
 		assert(PQftype(m_result, resultIndex) == INT8OID);
@@ -351,28 +351,28 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<bool>(int32_t tupleIndex, int32_t resultIndex, bool& resultValue)
+	forceinline void PostgresStatement::ExtractResult<bool>(int32_t tupleIndex, int32_t resultIndex, bool& resultValue)
 	{
 		assert(false);
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<float>(int32_t tupleIndex, int32_t resultIndex, float& resultValue)
+	forceinline void PostgresStatement::ExtractResult<float>(int32_t tupleIndex, int32_t resultIndex, float& resultValue)
 	{
 		assert(false);
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<double>(int32_t tupleIndex, int32_t resultIndex, double& resultValue)
+	forceinline void PostgresStatement::ExtractResult<double>(int32_t tupleIndex, int32_t resultIndex, double& resultValue)
 	{
 		assert(false);
 	}
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<std::string>(int32_t tupleIndex, int32_t resultIndex, std::string& resultValue)
+	forceinline void PostgresStatement::ExtractResult<std::string>(int32_t tupleIndex, int32_t resultIndex, std::string& resultValue)
 	{
 		assert(PQftype(m_result, resultIndex) == TEXTOID || PQftype(m_result, resultIndex) > 10000);
 
@@ -384,7 +384,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void PostgresStatement::ExtractResult<std::vector<byte>>(int32_t tupleIndex, int32_t resultIndex, std::vector<byte>& resultValue)
+	forceinline void PostgresStatement::ExtractResult<std::vector<byte>>(int32_t tupleIndex, int32_t resultIndex, std::vector<byte>& resultValue)
 	{
 		assert(PQftype(m_result, resultIndex) == BYTEAOID);
 

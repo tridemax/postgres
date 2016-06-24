@@ -21,14 +21,14 @@ namespace Postgres
 
 		public:
 			template <class Argument, class = typename std::enable_if<sizeof(Argument) <= sizeof(uintptr_t)>::type>
-			__forceinline PostgresArgument(const Argument& argumentValue)
+			forceinline PostgresArgument(const Argument& argumentValue)
 			{
 				memcpy(&m_argumentData, &argumentValue, sizeof(Argument));
 				m_argumentLength = sizeof(Argument);
 				m_hasExternalData = false;
 			}
 
-			__forceinline PostgresArgument(const char* const& argumentValue)
+			forceinline PostgresArgument(const char* const& argumentValue)
 			{
 				m_argumentData = reinterpret_cast<uintptr_t>(argumentValue);
 				m_argumentLength = static_cast<uint32_t>(strlen(argumentValue));
@@ -44,14 +44,14 @@ namespace Postgres
 
 	public:
 		//---------------------------------------------------------------------------------------------
-		__forceinline void ReserveArguments(uint32_t argumentsCount)
+		forceinline void ReserveArguments(uint32_t argumentsCount)
 		{
 			m_argumentsVector.reserve(argumentsCount);
 		}
 
 		//---------------------------------------------------------------------------------------------
 		template <class Argument>
-		__forceinline void BindArgument(const Argument& argumentValue)
+		forceinline void BindArgument(const Argument& argumentValue)
 		{
 			BindArgumentsCategory<Argument,
 				std::is_enum<Argument>::value ? TypeCategory::TypeEnum :
@@ -65,7 +65,7 @@ namespace Postgres
 		class BindArgumentsCategory
 		{
 		public:
-			__forceinline static void Bind(ArgumentsDynamicBinder& binder, const Argument& argumentValue) = delete;
+			forceinline static void Bind(ArgumentsDynamicBinder& binder, const Argument& argumentValue) = delete;
 		};
 
 		//---------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace Postgres
 		class BindArgumentsCategory<Argument, TypeCategory::TypeEnum>
 		{
 		public:
-			__forceinline static void Bind(ArgumentsDynamicBinder& binder, const Argument& argumentValue)
+			forceinline static void Bind(ArgumentsDynamicBinder& binder, const Argument& argumentValue)
 			{
 				binder.BindArgument(static_cast<typename std::underlying_type<Argument>::type>(argumentValue));
 			}
@@ -82,7 +82,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<int16_t>(const int16_t& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<int16_t>(const int16_t& argumentValue)
 	{
 		int16_t packedValue = argumentValue;
 		EndianSwap(packedValue);
@@ -92,7 +92,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<int32_t>(const int32_t& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<int32_t>(const int32_t& argumentValue)
 	{
 		int32_t packedValue = argumentValue;
 		EndianSwap(packedValue);
@@ -102,7 +102,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<int64_t>(const int64_t& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<int64_t>(const int64_t& argumentValue)
 	{
 		int64_t packedValue = argumentValue;
 		EndianSwap(packedValue);
@@ -112,7 +112,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<uint16_t>(const uint16_t& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<uint16_t>(const uint16_t& argumentValue)
 	{
 		int16_t packedValue = static_cast<int16_t>(argumentValue);
 		EndianSwap(packedValue);
@@ -122,7 +122,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<uint32_t>(const uint32_t& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<uint32_t>(const uint32_t& argumentValue)
 	{
 		int32_t packedValue = static_cast<int32_t>(argumentValue);
 		EndianSwap(packedValue);
@@ -132,7 +132,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<uint64_t>(const uint64_t& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<uint64_t>(const uint64_t& argumentValue)
 	{
 		int64_t packedValue = static_cast<int64_t>(argumentValue);
 		EndianSwap(packedValue);
@@ -142,7 +142,7 @@ namespace Postgres
 
 	//-------------------------------------------------------------------------------------------------
 	template <>
-	__forceinline void ArgumentsDynamicBinder::BindArgument<const char*>(const char* const& argumentValue)
+	forceinline void ArgumentsDynamicBinder::BindArgument<const char*>(const char* const& argumentValue)
 	{
 		m_argumentsVector.emplace_back(argumentValue);
 	}

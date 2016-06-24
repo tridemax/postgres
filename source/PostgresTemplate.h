@@ -6,7 +6,7 @@ namespace Postgres
 	//-------------------------------------------------------------------------------------------------
 	/// PostgresTemplate
 	//-------------------------------------------------------------------------------------------------
-	class PostgresTemplate : public NonCopyable
+	class PostgresTemplate : public boost::noncopyable
 	{
 	private:
 		const char*					m_templateCode;
@@ -14,18 +14,18 @@ namespace Postgres
 
 	public:
 		//---------------------------------------------------------------------------------------------
-		__forceinline PostgresTemplate(const char* templateCode) : m_templateCode(templateCode), m_templateHash(HashMurmur3<uint64_t>(templateCode).GetInternalValue())
+		forceinline PostgresTemplate(const char* templateCode) : m_templateCode(templateCode), m_templateHash(Aux::Hash64(templateCode, strlen(templateCode)))
 		{
 		}
 
 		//---------------------------------------------------------------------------------------------
-		__forceinline const char* GetCode() const
+		forceinline const char* GetCode() const
 		{
 			return m_templateCode;
 		}
 
 		//---------------------------------------------------------------------------------------------
-		__forceinline uint64_t GetHash() const
+		forceinline uint64_t GetHash() const
 		{
 			return m_templateHash;
 		}
