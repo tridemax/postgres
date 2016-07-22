@@ -14,7 +14,7 @@ namespace Postgres
 
 	public:
 		//---------------------------------------------------------------------------------------------
-		forceinline PostgresTemplate(const char* templateCode) : m_templateCode(templateCode), m_templateHash(Aux::Hash64(templateCode, strlen(templateCode)))
+		forceinline PostgresTemplate(const char* templateCode) : m_templateCode(templateCode), m_templateHash(aux::Hash64(templateCode, strlen(templateCode)))
 		{
 		}
 
